@@ -1,0 +1,154 @@
+{
+  "name": "Insurance CRM - Professional",
+  "short_name": "InsuranceCRM",
+  "description": "ระบบบริหารจัดการลูกค้าประกันชีวิตมืออาชีพ",
+  "version": "1.0.0",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#667eea",
+  "categories": ["business", "productivity", "finance"],
+  "lang": "th",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/72x72/667eea/ffffff?text=CRM",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://via.placeholder.com/96x96/667eea/ffffff?text=CRM",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://via.placeholder.com/128x128/667eea/ffffff?text=CRM",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://via.placeholder.com/144x144/667eea/ffffff?text=CRM",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://via.placeholder.com/152x152/667eea/ffffff?text=CRM",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://via.placeholder.com/192x192/667eea/ffffff?text=CRM",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://via.placeholder.com/384x384/667eea/ffffff?text=CRM",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512/667eea/ffffff?text=CRM",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://via.placeholder.com/1080x1920/667eea/ffffff?text=Customer+Dashboard",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Customer Dashboard"
+    },
+    {
+      "src": "https://via.placeholder.com/1920x1080/667eea/ffffff?text=Performance+Analytics",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Performance Analytics"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "เพิ่มลูกค้าใหม่",
+      "short_name": "Add Customer",
+      "description": "เพิ่มลูกค้าใหม่เข้าระบบ",
+      "url": "./?tab=customers&action=add",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96x96/4CAF50/ffffff?text=+",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Performance Dashboard",
+      "short_name": "Dashboard",
+      "description": "ดูสรุปผลงานและเป้าหมาย",
+      "url": "./performance_dashboard.html",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96x96/FF9800/ffffff?text=📊",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "บันทึกกิจกรรม",
+      "short_name": "Activities",
+      "description": "บันทึกกิจกรรมกับลูกค้า",
+      "url": "./?tab=activities&action=add",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96x96/2196F3/ffffff?text=📝",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "WOW Services",
+      "short_name": "WOW",
+      "description": "วางแผนและติดตาม WOW Service",
+      "url": "./?tab=wow&action=add",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96x96/E91E63/ffffff?text=⭐",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+insurancecrm",
+      "url": "./?customer=%s"
+    }
+  ],
+  "share_target": {
+    "action": "./",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}

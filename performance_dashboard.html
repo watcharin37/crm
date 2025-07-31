@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Agent Performance Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .date-display {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .goals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .goal-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .goal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .goal-card.mdrt { border-left-color: #ff6b6b; }
+        .goal-card.fyp { border-left-color: #4ecdc4; }
+        .goal-card.fyc { border-left-color: #45b7d1; }
+        .goal-card.policies { border-left-color: #96ceb4; }
+        .goal-card.referrals { border-left-color: #feca57; }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .goal-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .goal-icon {
+            font-size: 2em;
+            opacity: 0.7;
+        }
+
+        .progress-section {
+            margin-bottom: 20px;
+        }
+
+        .progress-numbers {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .current-value {
+            color: #27ae60;
+            font-size: 1.3em;
+        }
+
+        .target-value {
+            color: #7f8c8d;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-fill.mdrt { background: linear-gradient(90deg, #ff6b6b, #ff8e53); }
+        .progress-fill.fyp { background: linear-gradient(90deg, #4ecdc4, #44a08d); }
+        .progress-fill.fyc { background: linear-gradient(90deg, #45b7d1, #2980b9); }
+        .progress-fill.policies { background: linear-gradient(90deg, #96ceb4, #27ae60); }
+        .progress-fill.referrals { background: linear-gradient(90deg, #feca57, #ff9ff3); }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .countdown-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .countdown-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .countdown-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .edit-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-update {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-update:hover {
+            background: #229954;
+            transform: translateY(-2px);
+        }
+
+        .motivation-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            margin-top: 30px;
+            border-radius: 15px;
+        }
+
+        .motivation-text {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .achievement-message {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #e74c3c;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn-save {
+            background: #27ae60;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+        }
+
+        .celebration {
+            animation: celebration 2s ease-in-out;
+        }
+
+        @keyframes celebration {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .achievement-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .goals-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 Performance Dashboard</h1>
+            <div class="date-display" id="currentDate"></div>
+        </div>
+
+        <div class="main-content">
+            <!-- Stats Overview -->
+            <div class="stats-overview">
+                <div class="stat-item">
+                    <div class="stat-value" id="overallProgress">0%</div>
+                    <div class="stat-label">ความคืบหน้ารวม</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="completedGoals">0</div>
+                    <div class="stat-label">เป้าหมายที่สำเร็จ</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="daysRemaining">0</div>
+                    <div class="stat-label">วันที่เหลือ</div>
+                </div>
+            </div>
+
+            <!-- Goals Grid -->
+            <div class="goals-grid">
+                <!-- MDRT Goal -->
+                <div class="goal-card mdrt" id="mdrt-card">
+                    <div class="goal-header">
+                        <div class="goal-title">MDRT Qualification</div>
+                        <div class="goal-icon">🌟</div>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-numbers">
+                            <span class="current-value">฿<span id="mdrt-current">0</span></span>
+                            <span class="target-value">/ ฿<span id="mdrt-target">2,400,000</span></span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill mdrt" id="mdrt-progress">
+                                <div class="progress-text" id="mdrt-percent">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="countdown-section">
+                        <div class="countdown-label">เวลาที่เหลือ</div>
+                        <div class="countdown-value" id="mdrt-countdown">365 วัน</div>
+                    </div>
+                    <div class="edit-buttons">
+                        <button class="btn btn-edit" onclick="editGoal('mdrt')">แก้ไขเป้าหมาย</button>
+                        <button class="btn btn-update" onclick="updateProgress('mdrt')">อัพเดทผล</button>
+                    </div>
+                </div>
+
+                <!-- FYP Goal -->
+                <div class="goal-card fyp" id="fyp-card">
+                    <div class="goal-header">
+                        <div class="goal-title">First Year Premium</div>
+                        <div class="goal-icon">💰</div>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-numbers">
+                            <span class="current-value">฿<span id="fyp-current">0</span></span>
+                            <span class="target-value">/ ฿<span id="fyp-target">2,400,000</span></span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill fyp" id="fyp-progress">
+                                <div class="progress-text" id="fyp-percent">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="countdown-section">
+                        <div class="countdown-label">เวลาที่เหลือ</div>
+                        <div class="countdown-value" id="fyp-countdown">365 วัน</div>
+                    </div>
+                    <div class="edit-buttons">
+                        <button class="btn btn-edit" onclick="editGoal('fyp')">แก้ไขเป้าหมาย</button>
+                        <button class="btn btn-update" onclick="updateProgress('fyp')">อัพเดทผล</button>
+                    </div>
+                </div>
+
+                <!-- FYC Goal -->
+                <div class="goal-card fyc" id="fyc-card">
+                    <div class="goal-header">
+                        <div class="goal-title">First Year Commission</div>
+                        <div class="goal-icon">💸</div>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-numbers">
+                            <span class="current-value">฿<span id="fyc-current">0</span></span>
+                            <span class="target-value">/ ฿<span id="fyc-target">600,000</span></span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill fyc" id="fyc-progress">
+                                <div class="progress-text" id="fyc-percent">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="countdown-section">
+                        <div class="countdown-label">เวลาที่เหลือ</div>
+                        <div class="countdown-value" id="fyc-countdown">365 วัน</div>
+                    </div>
+                    <div class="edit-buttons">
+                        <button class="btn btn-edit" onclick="editGoal('fyc')">แก้ไขเป้าหมาย</button>
+                        <button class="btn btn-update" onclick="updateProgress('fyc')">อัพเดทผล</button>
+                    </div>
+                </div>
+
+                <!-- Policies Goal -->
+                <div class="goal-card policies" id="policies-card">
+                    <div class="goal-header">
+                        <div class="goal-title">จำนวนกรมธรรม์</div>
+                        <div class="goal-icon">📋</div>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-numbers">
+                            <span class="current-value"><span id="policies-current">0</span> กรมธรรม์</span>
+                            <span class="target-value">/ <span id="policies-target">50</span> กรมธรรม์</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill policies" id="policies-progress">
+                                <div class="progress-text" id="policies-percent">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="countdown-section">
+                        <div class="countdown-label">เวลาที่เหลือ</div>
+                        <div class="countdown-value" id="policies-countdown">365 วัน</div>
+                    </div>
+                    <div class="edit-buttons">
+                        <button class="btn btn-edit" onclick="editGoal('policies')">แก้ไขเป้าหมาย</button>
+                        <button class="btn btn-update" onclick="updateProgress('policies')">อัพเดทผล</button>
+                    </div>
+                </div>
+
+                <!-- Referrals Goal -->
+                <div class="goal-card referrals" id="referrals-card">
+                    <div class="goal-header">
+                        <div class="goal-title">การแนะนำลูกค้า</div>
+                        <div class="goal-icon">🤝</div>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-numbers">
+                            <span class="current-value"><span id="referrals-current">0</span> คน</span>
+                            <span class="target-value">/ <span id="referrals-target">100</span> คน</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill referrals" id="referrals-progress">
+                                <div class="progress-text" id="referrals-percent">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="countdown-section">
+                        <div class="countdown-label">เวลาที่เหลือ</div>
+                        <div class="countdown-value" id="referrals-countdown">365 วัน</div>
+                    </div>
+                    <div class="edit-buttons">
+                        <button class="btn btn-edit" onclick="editGoal('referrals')">แก้ไขเป้าหมาย</button>
+                        <button class="btn btn-update" onclick="updateProgress('referrals')">อัพเดทผล</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Motivation Section -->
+            <div class="motivation-section" id="motivationSection">
+                <div class="motivation-text" id="motivationText">
+                    🔥 คุณกำลังเดินทางสู่ความสำเร็จ! ทุกวันคือโอกาสใหม่ในการเข้าใกล้เป้าหมาย
+                </div>
+                <div class="achievement-message" id="achievementMessage">
+                    เริ่มต้นเส้นทางแห่งความสำเร็จของคุณวันนี้ 💪
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Goal Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">แก้ไขเป้าหมาย</div>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="editForm">
+                <div class="form-group">
+                    <label class="form-label">เป้าหมาย:</label>
+                    <input type="number" class="form-input" id="editTarget" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">วันที่สิ้นสุด:</label>
+                    <input type="date" class="form-input" id="editDeadline" required>
+                </div>
+                <button type="submit" class="btn btn-save">บันทึก</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Progress Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="updateModalTitle">อัพเดทความคืบหน้า</div>
+                <span class="close" onclick="closeUpdateModal()">&times;</span>
+            </div>
+            <form id="updateForm">
+                <div class="form-group">
+                    <label class="form-label">ผลงานปัจจุบัน:</label>
+                    <input type="number" class="form-input" id="updateCurrent" required>
+                </div>
+                <button type="submit" class="btn btn-save">อัพเดท</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentEditingGoal = '';
+        let goals = {
+            mdrt: { current: 0, target: 2400000, deadline: new Date(new Date().getFullYear(), 11, 31) },
+            fyp: { current: 0, target: 2400000, deadline: new Date(new Date().getFullYear(), 11, 31) },
+            fyc: { current: 0, target: 600000, deadline: new Date(new Date().getFullYear(), 11, 31) },
+            policies: { current: 0, target: 50, deadline: new Date(new Date().getFullYear(), 11, 31) },
+            referrals: { current: 0, target: 100, deadline: new Date(new Date().getFullYear(), 11, 31) }
+        };
+
+        // Motivational messages
+        const motivationalMessages = {
+            0: ["🌟 เริ่มต้นเส้นทางแห่งความสำเร็จ!", "ทุกก้าวเล็กๆ นำไปสู่ชิงชัยใหญ่"],
+            10: ["💪 เยี่ยม! คุณได้เริ่มต้นแล้ว", "10% แรกเสมอจะยากที่สุด คุณผ่านมาได้แล้ว!"],
+            25: ["🔥 ไตรมาสแรกสำเร็จ!", "คุณกำลังสร้างโมเมนตัมที่ยอดเยี่ยม"],
+            50: ["🎯 ครึ่งทางแล้ว! สุดยอด!", "คุณอยู่ในเส้นทางที่ถูกต้องแล้ว"],
+            75: ["⚡ เกือบถึงแล้ว! สู้ๆ!", "อีกนิดเดียวคุณจะบรรลุเป้าหมาย"],
+            90: ["🏃‍♂️ Sprint สุดท้าย!", "ความสำเร็จอยู่เอื้อมมือแล้ว"],
+            100: ["🏆 สำเร็จแล้ว! ยอดเยี่ยม!", "คุณพิสูจน์แล้วว่าทำได้ เป้าหมายถัดไปคืออะไร?"]
+        };
+
+        // Load data from localStorage
+        function loadData() {
+            const savedGoals = localStorage.getItem('insuranceGoals');
+            if (savedGoals) {
+                const parsed = JSON.parse(savedGoals);
+                for (let key in parsed) {
+                    goals[key] = {
+                        ...goals[key],
+                        ...parsed[key],
+                        deadline: new Date(parsed[key].deadline)
+                    };
+                }
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('insuranceGoals', JSON.stringify(goals));
+        }
+
+        // Update display
+        function updateDisplay() {
+            updateCurrentDate();
+            updateOverallStats();
+            
+            for (let goalType in goals) {
+                updateGoalDisplay(goalType);
+            }
+            
+            updateMotivation();
+        }
+
+        // Update current date
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                weekday: 'long'
+            };
+            document.getElementById('currentDate').textContent = 
+                now.toLocaleDateString('th-TH', options);
+        }
+
+        // Update overall statistics
+        function updateOverallStats() {
+            let totalProgress = 0;
+            let completedGoals = 0;
+            let totalGoals = Object.keys(goals).length;
+
+            for (let goalType in goals) {
+                const progress = Math.min((goals[goalType].current / goals[goalType].target) * 100, 100);
+                totalProgress += progress;
+                if (progress >= 100) completedGoals++;
+            }
+
+            const overallProgress = Math.round(totalProgress / totalGoals);
+            document.getElementById('overallProgress').textContent = overallProgress + '%';
+            document.getElementById('completedGoals').textContent = completedGoals;
+
+            // Calculate days remaining (use the earliest deadline)
+            const now = new Date();
+            let earliestDeadline = new Date('2099-12-31');
+            for (let goalType in goals) {
+                if (goals[goalType].deadline < earliestDeadline) {
+                    earliestDeadline = goals[goalType].deadline;
+                }
+            }
+            
+            const daysRemaining = Math.max(0, Math.ceil((earliestDeadline - now) / (1000 * 60 * 60 * 24)));
+            document.getElementById('daysRemaining').textContent = daysRemaining;
+        }
+
+        // Update individual goal display
+        function updateGoalDisplay(goalType) {
+            const goal = goals[goalType];
+            const progress = Math.min((goal.current / goal.target) * 100, 100);
+            
+            // Update current value
+            document.getElementById(goalType + '-current').textContent = goal.current.toLocaleString();
+            
+            // Update target value
+            document.getElementById(goalType + '-target').textContent = goal.target.toLocaleString();
+            
+            // Update progress bar
+            document.getElementById(goalType + '-progress').style.width = progress + '%';
+            document.getElementById(goalType + '-percent').textContent = Math.round(progress) + '%';
+            
+            // Update countdown
+            const now = new Date();
+            const daysRemaining = Math.max(0, Math.ceil((goal.deadline - now) / (1000 * 60 * 60 * 24)));
+            document.getElementById(goalType + '-countdown').textContent = daysRemaining + ' วัน';
+            
+            // Add celebration effect if goal is achieved
+            const card = document.getElementById(goalType + '-card');
+            if (progress >= 100) {
+                card.classList.add('celebration');
+                const badge = card.querySelector('.achievement-badge');
+                if (!badge) {
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'achievement-badge';
+                    newBadge.textContent = 'สำเร็จ!';
+                    card.querySelector('.goal-title').appendChild(newBadge);
+                }
+            } else {
+                card.classList.remove('celebration');
+                const badge = card.querySelector('.achievement-badge');
+                if (badge) badge.remove();
+            }
+        }
+
+        // Update motivation section
+        function updateMotivation() {
+            let totalProgress = 0;
+            let totalGoals = Object.keys(goals).length;
+
+            for (let goalType in goals) {
+                const progress = Math.min((goals[goalType].current / goals[goalType].target) * 100, 100);
+                totalProgress += progress;
+            }
+
+            const overallProgress = Math.round(totalProgress / totalGoals);
+            
+            // Find appropriate motivational message
+            let messageKey = 0;
+            for (let threshold of [100, 90, 75, 50, 25, 10, 0]) {
+                if (overallProgress >= threshold) {
+                    messageKey = threshold;
+                    break;
+                }
+            }
+
+            const messages = motivationalMessages[messageKey];
+            document.getElementById('motivationText').textContent = messages[0];
+            document.getElementById('achievementMessage').textContent = messages[1];
+
+            // Change color based on progress
+            const motivationSection = document.getElementById('motivationSection');
+            if (overallProgress >= 100) {
+                motivationSection.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+            } else if (overallProgress >= 75) {
+                motivationSection.style.background = 'linear-gradient(135deg, #f39c12, #e67e22)';
+            } else if (overallProgress >= 50) {
+                motivationSection.style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
+            } else {
+                motivationSection.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            }
+        }
+
+        // Edit goal function
+        function editGoal(goalType) {
+            currentEditingGoal = goalType;
+            const goal = goals[goalType];
+            
+            document.getElementById('modalTitle').textContent = `แก้ไขเป้าหมาย ${getGoalDisplayName(goalType)}`;
+            document.getElementById('editTarget').value = goal.target;
+            document.getElementById('editDeadline').value = goal.deadline.toISOString().split('T')[0];
+            
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        // Update progress function
+        function updateProgress(goalType) {
+            currentEditingGoal = goalType;
+            const goal = goals[goalType];
+            
+            document.getElementById('updateModalTitle').textContent = `อัพเดท ${getGoalDisplayName(goalType)}`;
+            document.getElementById('updateCurrent').value = goal.current;
+            
+            document.getElementById('updateModal').style.display = 'block';
+        }
+
+        // Get goal display name
+        function getGoalDisplayName(goalType) {
+            const names = {
+                mdrt: 'MDRT',
+                fyp: 'First Year Premium',
+                fyc: 'First Year Commission',
+                policies: 'จำนวนกรมธรรม์',
+                referrals: 'การแนะนำลูกค้า'
+            };
+            return names[goalType];
+        }
+
+        // Close modals
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function closeUpdateModal() {
+            document.getElementById('updateModal').style.display = 'none';
+        }
+
+        // Form submissions
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const target = parseFloat(document.getElementById('editTarget').value);
+            const deadline = new Date(document.getElementById('editDeadline').value);
+            
+            goals[currentEditingGoal].target = target;
+            goals[currentEditingGoal].deadline = deadline;
+            
+            saveData();
+            updateDisplay();
+            closeModal();
+            
+            // Show success message
+            alert('เป้าหมายถูกแก้ไขเรียบร้อยแล้ว!');
+        });
+
+        document.getElementById('updateForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const current = parseFloat(document.getElementById('updateCurrent').value);
+            goals[currentEditingGoal].current = current;
+            
+            saveData();
+            updateDisplay();
+            closeUpdateModal();
+            
+            // Show success message with motivation
+            const progress = (current / goals[currentEditingGoal].target) * 100;
+            if (progress >= 100) {
+                alert('🎉 ยินดีด้วย! คุณบรรลุเป้าหมายแล้ว!');
+            } else {
+                alert(`✅ อัพเดทเรียบร้อย! คุณทำได้ ${Math.round(progress)}% แล้ว`);
+            }
+        });
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const editModal = document.getElementById('editModal');
+            const updateModal = document.getElementById('updateModal');
+            
+            if (event.target === editModal) {
+                closeModal();
+            }
+            if (event.target === updateModal) {
+                closeUpdateModal();
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            updateDisplay();
+            
+            // Update every hour
+            setInterval(updateDisplay, 60 * 60 * 1000);
+        });
+    </script>
+</body>
+</html>

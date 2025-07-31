@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Journey Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .customer-selector {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .selector-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .customer-dropdown {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1.1em;
+            background: white;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40,167,69,0.3);
+        }
+
+        .journey-visualization {
+            margin-bottom: 30px;
+        }
+
+        .journey-stages {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .stage {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            margin: 0 5px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stage.active {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(40,167,69,0.3);
+        }
+
+        .stage.awareness { border: 3px solid #dc3545; }
+        .stage.interest { border: 3px solid #fd7e14; }
+        .stage.consideration { border: 3px solid #ffc107; }
+        .stage.purchase { border: 3px solid #28a745; }
+        .stage.advocacy { border: 3px solid #198754; }
+
+        .stage-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .stage-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stage-score {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .latent-analysis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .factor-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+            transition: transform 0.3s ease;
+        }
+
+        .factor-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .factor-card.financial { border-left-color: #007bff; }
+        .factor-card.life { border-left-color: #28a745; }
+        .factor-card.risk { border-left-color: #ffc107; }
+        .factor-card.trust { border-left-color: #dc3545; }
+        .factor-card.referral { border-left-color: #6f42c1; }
+
+        .factor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .factor-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .factor-score {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .factor-progress {
+            width: 100%;
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .factor-progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .factor-progress-fill.financial { background: linear-gradient(90deg, #007bff, #0056b3); }
+        .factor-progress-fill.life { background: linear-gradient(90deg, #28a745, #1e7e34); }
+        .factor-progress-fill.risk { background: linear-gradient(90deg, #ffc107, #e0a800); }
+        .factor-progress-fill.trust { background: linear-gradient(90deg, #dc3545, #c82333); }
+        .factor-progress-fill.referral { background: linear-gradient(90deg, #6f42c1, #5a32a3); }
+
+        .factor-description {
+            color: #6c757d;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .recommendations {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .recommendations h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .action-list {
+            list-style: none;
+        }
+
+        .action-item {
+            background: white;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .action-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .action-item::before {
+            content: "📋";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .customer-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .info-content {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        .delete-section {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220,53,69,0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #6c757d;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        @media (max-width: 768px) {
+            .selector-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .journey-stages {
+                flex-direction: column;
+            }
+            
+            .stage {
+                margin: 5px 0;
+            }
+            
+            .latent-analysis {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Customer Journey & Latent Analysis</h1>
+            <p>ระบบวิเคราะห์เส้นทางลูกค้าและ AI Intelligence</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Customer Selector -->
+            <div class="customer-selector">
+                <h3>เลือกลูกค้าที่ต้องการวิเคราะห์</h3>
+                <div class="selector-grid">
+                    <select id="customerSelect" class="customer-dropdown">
+                        <option value="">กำลังโหลดรายชื่อลูกค้า...</option>
+                    </select>
+                    <button id="analyzeBtn" class="analyze-btn" onclick="analyzeCustomer()">
+                        🔍 วิเคราะห์ลูกค้า
+                    </button>
+                </div>
+            </div>
+
+            <!-- Analysis Results -->
+            <div id="analysisResults" style="display: none;">
+                
+                <!-- Customer Info -->
+                <div class="customer-info">
+                    <div class="info-card">
+                        <div class="info-title">📋 ข้อมูลลูกค้า</div>
+                        <div class="info-content" id="customerInfo"></div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-title">🎯 Journey Stage</div>
+                        <div class="info-content" id="journeyStageInfo"></div>
+                    </div>
+                </div>
+
+                <!-- Journey Visualization -->
+                <div class="journey-visualization">
+                    <h3>🗺️ Customer Journey Stages</h3>
+                    <div class="journey-stages">
+                        <div class="stage awareness" data-stage="Awareness">
+                            <div class="stage-icon">🔴</div>
+                            <div class="stage-title">Awareness</div>
+                            <div class="stage-score">0-20%</div>
+                        </div>
+                        <div class="stage interest" data-stage="Interest">
+                            <div class="stage-icon">🟠</div>
+                            <div class="stage-title">Interest</div>
+                            <div class="stage-score">21-40%</div>
+                        </div>
+                        <div class="stage consideration" data-stage="Consideration">
+                            <div class="stage-icon">🟡</div>
+                            <div class="stage-title">Consideration</div>
+                            <div class="stage-score">41-60%</div>
+                        </div>
+                        <div class="stage purchase" data-stage="Purchase">
+                            <div class="stage-icon">🟢</div>
+                            <div class="stage-title">Purchase</div>
+                            <div class="stage-score">61-80%</div>
+                        </div>
+                        <div class="stage advocacy" data-stage="Advocacy">
+                            <div class="stage-icon">🟢</div>
+                            <div class="stage-title">Advocacy</div>
+                            <div class="stage-score">81-100%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Latent Analysis -->
+                <div class="latent-analysis">
+                    <div class="factor-card financial">
+                        <div class="factor-header">
+                            <div class="factor-title">💰 Financial Readiness</div>
+                            <div class="factor-score" id="financialScore">0%</div>
+                        </div>
+                        <div class="factor-progress">
+                            <div class="factor-progress-fill financial" id="financialProgress"></div>
+                        </div>
+                        <div class="factor-description" id="financialDesc">-</div>
+                    </div>
+
+                    <div class="factor-card life">
+                        <div class="factor-header">
+                            <div class="factor-title">👨‍👩‍👧‍👦 Life Stage</div>
+                            <div class="factor-score" id="lifeScore">0%</div>
+                        </div>
+                        <div class="factor-progress">
+                            <div class="factor-progress-fill life" id="lifeProgress"></div>
+                        </div>
+                        <div class="factor-description" id="lifeDesc">-</div>
+                    </div>
+
+                    <div class="factor-card risk">
+                        <div class="factor-header">
+                            <div class="factor-title">⚠️ Risk Awareness</div>
+                            <div class="factor-score" id="riskScore">0%</div>
+                        </div>
+                        <div class="factor-progress">
+                            <div class="factor-progress-fill risk" id="riskProgress"></div>
+                        </div>
+                        <div class="factor-description" id="riskDesc">-</div>
+                    </div>
+
+                    <div class="factor-card trust">
+                        <div class="factor-header">
+                            <div class="factor-title">🤝 Trust Level</div>
+                            <div class="factor-score" id="trustScore">0%</div>
+                        </div>
+                        <div class="factor-progress">
+                            <div class="factor-progress-fill trust" id="trustProgress"></div>
+                        </div>
+                        <div class="factor-description" id="trustDesc">-</div>
+                    </div>
+
+                    <div class="factor-card referral">
+                        <div class="factor-header">
+                            <div class="factor-title">🔗 Referral Potential</div>
+                            <div class="factor-score" id="referralScore">0%</div>
+                        </div>
+                        <div class="factor-progress">
+                            <div class="factor-progress-fill referral" id="referralProgress"></div>
+                        </div>
+                        <div class="factor-description" id="referralDesc">-</div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendations -->
+                <div class="recommendations">
+                    <h3>🤖 AI Recommendations - Next Best Actions</h3>
+                    <ul class="action-list" id="actionList">
+                        <!-- Actions will be populated here -->
+                    </ul>
+                </div>
+
+                <!-- Delete Customer Section -->
+                <div class="delete-section" id="deleteSection">
+                    <h4>⚠️ ลบข้อมูลลูกค้า</h4>
+                    <p>การลบจะเป็นการลบข้อมูลลูกค้าและกิจกรรมที่เกี่ยวข้องทั้งหมด ไม่สามารถกู้คืนได้</p>
+                    <button class="delete-btn" onclick="deleteCustomer()">🗑️ ลบลูกค้านี้</button>
+                </div>
+
+            </div>
+
+            <!-- Loading/Error Messages -->
+            <div id="loadingMessage" class="loading">🔄 กำลังโหลด...</div>
+            <div id="errorMessage" class="error" style="display: none;"></div>
+            <div id="successMessage" class="success" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let customers = [];
+        let currentCustomer = null;
+        let currentAnalysis = null;
+        const API_URL = localStorage.getItem('googleSheetsApiUrl') || '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!API_URL) {
+                showError('กรุณาตั้งค่า Google Sheets API URL ก่อน');
+                return;
+            }
+            loadCustomers();
+        });
+
+        // Load customers list
+        async function loadCustomers() {
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_URL}?action=getCustomers`);
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    customers = data.data;
+                    populateCustomerDropdown();
+                } else {
+                    showError('ไม่สามารถโหลดรายชื่อลูกค้าได้: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                showError('เกิดข้อผิดพลาดในการโหลดลูกค้า: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Populate customer dropdown
+        function populateCustomerDropdown() {
+            const select = document.getElementById('customerSelect');
+            select.innerHTML = '<option value="">เลือกลูกค้า...</option>';
+
+            customers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer.ID || customer[' ID'];
+                option.textContent = `${customer.Name} - ${customer.Phone}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Analyze customer
+        async function analyzeCustomer() {
+            const customerId = document.getElementById('customerSelect').value;
+            if (!customerId) {
+                showError('กรุณาเลือกลูกค้าก่อน');
+                return;
+            }
+
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_URL}?action=analyzeCustomer&customerId=${customerId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentCustomer = data.customer;
+                    currentAnalysis = data.latent_analysis;
+                    displayAnalysisResults(data);
+                } else {
+                    showError('ไม่สามารถวิเคราะห์ลูกค้าได้: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                showError('เกิดข้อผิดพลาดในการวิเคราะห์: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Display analysis results
+        function displayAnalysisResults(data) {
+            const customer = data.customer;
+            const analysis = data.latent_analysis;
+            const breakdown = data.analysis_breakdown;
+
+            // Show results section
+            document.getElementById('analysisResults').style.display = 'block';
+
+            // Customer Info
+            document.getElementById('customerInfo').innerHTML = `
+                <strong>ชื่อ:</strong> ${customer.Name}<br>
+                <strong>อาชีพ:</strong> ${customer.Occupation}<br>
+                <strong>รายได้:</strong> ฿${customer.Income?.toLocaleString()}<br>
+                <strong>แหล่งที่มา:</strong> ${customer.Source}<br>
+                <strong>หมายเหตุ:</strong> ${customer.Notes}
+            `;
+
+            // Journey Stage Info
+            document.getElementById('journeyStageInfo').innerHTML = `
+                <strong>Stage:</strong> ${analysis.journeyStage}<br>
+                <strong>คะแนนรวม:</strong> ${analysis.totalScore}/100<br>
+                <strong>สี:</strong> <span style="color: ${getColorCode(analysis.color)}">${getColorName(analysis.color)}</span>
+            `;
+
+            // Update journey stages visualization
+            updateJourneyStages(analysis.journeyStage, analysis.totalScore);
+
+            // Update latent factors
+            updateLatentFactors(breakdown);
+
+            // Update recommendations
+            updateRecommendations(data.next_actions);
+        }
+
+        // Update journey stages
+        function updateJourneyStages(currentStage, totalScore) {
+            const stages = document.querySelectorAll('.stage');
+            stages.forEach(stage => {
+                stage.classList.remove('active');
+                if (stage.dataset.stage === currentStage) {
+                    stage.classList.add('active');
+                    stage.querySelector('.stage-score').textContent = `${totalScore}%`;
+                }
+            });
+        }
+
+        // Update latent factors
+        function updateLatentFactors(breakdown) {
+            const factors = ['financial_readiness', 'life_stage', 'risk_awareness', 'trust_level', 'referral_potential'];
+            const mappings = {
+                'financial_readiness': 'financial',
+                'life_stage': 'life',
+                'risk_awareness': 'risk',
+                'trust_level': 'trust',
+                'referral_potential': 'referral'
+            };
+
+            factors.forEach(factor => {
+                if (breakdown[factor]) {
+                    const mapping = mappings[factor];
+                    const score = Math.round(breakdown[factor].score);
+                    
+                    document.getElementById(`${mapping}Score`).textContent = `${score}%`;
+                    document.getElementById(`${mapping}Progress`).style.width = `${score}%`;
+                    document.getElementById(`${mapping}Desc`).textContent = breakdown[factor].description;
+                }
+            });
+        }
+
+        // Update recommendations
+        function updateRecommendations(actions) {
+            const actionList = document.getElementById('actionList');
+            actionList.innerHTML = '';
+
+            actions.forEach(action => {
+                const li = document.createElement('li');
+                li.className = 'action-item';
+                li.textContent = action;
+                actionList.appendChild(li);
+            });
+        }
+
+        // Delete customer
+        async function deleteCustomer() {
+            if (!currentCustomer) {
+                showError('กรุณาเลือกลูกค้าก่อน');
+                return;
+            }
+
+            const customerId = currentCustomer.ID || currentCustomer[' ID'];
+            const customerName = currentCustomer.Name;
+
+            if (!confirm(`คุณแน่ใจหรือไม่ที่จะลบลูกค้า "${customerName}"?\n\nการลบจะเป็นการลบข้อมูลทั้งหมดที่เกี่ยวข้อง ไม่สามารถกู้คืนได้`)) {
+                return;
+            }
+
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_URL}?action=deleteCustomer&id=${customerId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess(`ลบลูกค้า "${customerName}" เรียบร้อยแล้ว`);
+                    
+                    // Hide analysis results
+                    document.getElementById('analysisResults').style.display = 'none';
+                    
+                    // Reload customers list
+                    await loadCustomers();
+                    
+                    currentCustomer = null;
+                    currentAnalysis = null;
+                } else {
+                    showError('ไม่สามารถลบลูกค้าได้: ' + (data.message || data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                showError('เกิดข้อผิดพลาดในการลบลูกค้า: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Utility functions
+        function getColorCode(color) {
+            const colors = {
+                'red': '#dc3545',
+                'orange': '#fd7e14',
+                'yellow': '#ffc107',
+                'green': '#28a745',
+                'dark_green': '#198754'
+            };
+            return colors[color] || '#6c757d';
+        }
+
+        function getColorName(color) {
+            const names = {
+                'red': 'แดง',
+                'orange': 'ส้ม',
+                'yellow': 'เหลือง',
+                'green': 'เขียว',
+                'dark_green': 'เขียวเข้ม'
+            };
+            return names[color] || color;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingMessage').style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
